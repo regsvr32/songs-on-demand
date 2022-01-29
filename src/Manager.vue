@@ -1,0 +1,140 @@
+<template>
+  <div class="manager-window">
+    <el-form class="configs" label-position="right" label-width="160px" @submit.prevent>
+      <el-form-item>
+        <template #label>
+          <el-space>
+            <span>用户点歌CD</span>
+            <el-switch v-model="config.userCdEnabled" />
+          </el-space>
+        </template>
+        <el-space>
+          <el-input-number v-model="config.userCdMinute" :min="1" :precision="0" :disabled="!config.userCdEnabled" />
+          <span>分钟</span>
+        </el-space>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <el-space>
+            <span>歌单限制</span>
+            <el-switch v-model="config.listLimitEnabled" />
+          </el-space>
+        </template>
+        <el-space>
+          <el-input-number v-model="config.listLimitCount" :min="1" :precision="0" :disabled="!config.listLimitEnabled" />
+          <span>首</span>
+        </el-space>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <el-space>
+            <span>舰长魔法点歌</span>
+            <el-switch v-model="config.guardPowerEnabled" />
+          </el-space>
+        </template>
+        <el-space direction="vertical" alignment="start">
+          <el-space>
+            <el-input-number v-model="config.guardPowerPerWeek" :min="1" :precision="0" :disabled="!config.guardPowerEnabled || config.guardPowerTimesInfinity" />
+            <span>次/周(每周一重置)</span>
+          </el-space>
+          <el-checkbox v-model="config.guardPowerTimesInfinity" :disabled="!config.guardPowerEnabled" label="次数不限" />
+        </el-space>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <span>文本设置&emsp;</span>
+        </template>
+        <el-space direction="vertical" alignment="start">
+          <el-space>
+            <span>歌曲编号</span>
+            <el-color-picker v-model="config.songNumberColor" size="small" />
+            <el-checkbox v-model="config.songNumberEnabled" label="显示" />
+            <el-checkbox v-model="config.songNumberShadow" label="阴影" />
+          </el-space>
+          <el-space>
+            <span>歌曲名称</span>
+            <el-color-picker v-model="config.songNameColor" size="small" />
+            <el-checkbox v-model="config.songNameShadow" label="阴影" />
+          </el-space>
+          <el-space>
+            <span>点歌用户</span>
+            <el-color-picker v-model="config.userNameColor" size="small" />
+            <el-checkbox v-model="config.userNameShadow" label="阴影" />
+          </el-space>
+        </el-space>
+      </el-form-item>
+    </el-form>
+    <el-form class="layout-right" label-position="top" @submit.prevent>
+      <el-form-item>
+        <el-input class="bullying-songs" type="textarea" v-model="config.bullyingSongsRaw" resize="none" />
+      </el-form-item>
+      <el-form-item class="botton-wrapper">
+        <el-button type="primary" @click="applyConfig">应用</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<style lang="sass">
+body
+  margin: 0px
+
+.manager-window
+  display: flex
+  height: 100vh
+  box-sizing: border-box
+  padding: 12px
+  .configs
+    box-sizing: border-box
+    padding: 12px
+    margin-right: 12px
+    border: 1px solid #dcdfe6
+    border-radius: 4px
+    overflow-y: auto
+  .layout-right
+    box-sizing: border-box
+    overflow-y: auto
+    flex-grow: 1
+    .bullying-songs
+      .el-textarea__inner
+        height: calc(100vh - 80px)
+        padding-left: 10px
+      &::after
+        content: '迫害歌单'
+        position: absolute
+        bottom: -1em
+        left: 0.5em
+        padding: 0px 6px
+        background-color: #ffffff
+        color: var(--el-text-color-secondary)
+        transition: color 0.2s ease
+      &:focus-within::after
+        color: var(--el-color-primary)
+    .botton-wrapper
+      margin-bottom: 0px
+      .el-form-item__content
+        flex-direction: row-reverse
+
+.el-color-picker__panel .el-color-dropdown__btns>.el-button--text:nth-child(2)
+  display: none
+</style>
+
+<script setup>
+import { ref } from 'vue'
+import { defaultConfig } from './util/appConfig'
+import { ElMessage } from 'element-plus'
+
+const storagedConfig = localStorage.getItem('config')
+const config = ref(storagedConfig && JSON.parse(storagedConfig) || defaultConfig)
+
+function applyConfig() {
+  localStorage.setItem('config', JSON.stringify(config.value))
+  window.electron.updateConfig()
+  ElMessage.success({
+    message: '更新成功',
+    duration: 1500,
+    showClose: true
+  })
+}
+
+</script>

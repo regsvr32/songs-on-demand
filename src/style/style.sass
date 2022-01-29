@@ -1,0 +1,58 @@
+@font-face
+  font-family: UKai
+  src: url(/font/UKaiCN-01.ttf)
+
+:root
+  --minor-text-color: #1c285f
+
+*
+  font-family: UKai
+  font-size: 21px
+  text-shadow: 0px 1px 3px #000000
+  user-select: none
+
+input
+  background-color: #ffe1a666
+  border: 2px solid transparent
+  border-radius: 4px
+  color: var(--minor-text-color)
+  font-weight: bold
+  text-shadow: none
+  &:focus
+    outline: none
+    border-color: var(--minor-text-color)
+
+button
+  padding: 6px 12px
+  border: none
+  border-radius: 4px
+  text-shadow: none
+  color: #ffffff
+  background-color: var(--minor-text-color)
+  transition: background-color 0.2s ease, transform 0.2s ease
+  cursor: pointer
+  &:focus-visible
+    outline: 1px solid #ffe1a6
+  &:hover
+    background-color: #919fde
+  &:active
+    transform: scale(0.9) translateY(2px)
+
+@keyframes text-scroll-horizontal
+  0%, 25%
+    transform: none
+  75%, 100%
+    transform: translateX(var(--scroll-width))
+    
+.text-scroll-alternate
+  animation: text-scroll-horizontal var(--scroll-duration) cubic-bezier(0.5,0,0.5,1) var(--scroll-delay) var(--scroll-times) alternate
+
+::-webkit-scrollbar
+  width: 8px
+::-webkit-scrollbar-track
+  background: none
+::-webkit-scrollbar-thumb
+  border-radius: 4px
+  background-color: #ffffff10
+  &:hover
+    background-color: #ffffff40
