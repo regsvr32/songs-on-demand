@@ -13,6 +13,10 @@
           </td>
         </tr>
         <tr>
+          <td>源代码</td>
+          <td><span class="link" @click="open('https://github.com/regsvr32/songs-on-demand')">Github</span></td>
+        </tr>
+        <tr>
           <td>联系作者</td>
           <td>QQ: <span class="link" @click="open('https://wpa.qq.com/msgrd?v=3&uin=364944699&site=qq&menu=yes')">364944699</span></td>
         </tr>
