@@ -2,8 +2,10 @@ import { ipcMain, BrowserWindow } from 'electron'
 import ping from 'ping'
 import { decompress } from 'brotli'
 import { join } from 'path'
+import fontManager from 'node-system-fonts';
 
 let configWindow = null
+let fontFamilies = null
 
 export function regisiterApi() {
   ipcMain.handle('select-fastest', (_, host_list) => {
@@ -15,6 +17,19 @@ export function regisiterApi() {
 
   ipcMain.handle('brotli-decompress', (_, array) => {
     return decompress(Buffer.from(array))
+  })
+
+  ipcMain.handle('get-font-families', () => {
+    return new Promise(res => {
+      if (fontFamilies != null) {
+        res(fontFamilies)
+        return
+      }
+      fontManager.getAvailableFonts(fonts => {
+        fontFamilies = [...new Set(fonts.map(font => font.family))]
+        res(fontFamilies)
+      })
+    })
   })
 
   ipcMain.on('open-config-window', () => {

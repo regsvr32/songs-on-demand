@@ -7,6 +7,10 @@
 
 [Node.js](https://nodejs.org/en/download/)
 
+```
+npm ci
+```
+
 
 ## 调试
 

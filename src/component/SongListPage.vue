@@ -66,6 +66,7 @@
     height: calc(100% - 144px)
     overflow-y: scroll
     font-weight: bold
+    padding-left: 16px
     .song-line
       position: relative
       box-sizing: border-box
@@ -162,9 +163,8 @@ body:not(.focused) .button-wrapper
 </style>
 
 <script setup>
-import { ref, shallowRef, computed, watchEffect, inject, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watchEffect, inject, nextTick } from 'vue'
 import logger from '../util/logger'
-import { defaultConfig } from '../util/appConfig'
 import Icon from '../asset/Icon.vue'
 
 const globalStore = inject('globalStore')
@@ -177,10 +177,7 @@ function loadStoragedJson(key, defaultValue) {
 }
 
 const roomId = parseInt(localStorage.getItem('roomId'))
-const config = shallowRef(loadStoragedJson('config', defaultConfig))
-
-const cancelWatchConfig = window.electron.watchConfig(() => config.value = JSON.parse(localStorage.getItem('config')))
-onUnmounted(cancelWatchConfig)
+const config = inject('config')
 
 const songListStyles = computed(() => {
   const { songNumberColor, songNumberShadow, songNameColor, songNameShadow, userNameColor, userNameShadow } = config.value

@@ -80,14 +80,18 @@ async function createWindow() {
 
   const webRequest = win.webContents.session.webRequest
   webRequest.onBeforeSendHeaders((details, callback) => {
-    delete details.requestHeaders.Origin
-    delete details.requestHeaders.Referer
-    details.requestHeaders['Sec-Fetch-Mode'] = 'navigate'
-    details.requestHeaders['Sec-Fetch-Site'] = 'none'
+    if (details.url.includes('bilibili')) {
+      delete details.requestHeaders.Origin
+      delete details.requestHeaders.Referer
+      details.requestHeaders['Sec-Fetch-Mode'] = 'navigate'
+      details.requestHeaders['Sec-Fetch-Site'] = 'none'
+    }
     callback({ requestHeaders: details.requestHeaders })
   })
   webRequest.onHeadersReceived((details, callback) => {
-    details.responseHeaders['Access-Control-Allow-Origin'] = ['*']
+    if (details.url.includes('bilibili')) {
+      details.responseHeaders['Access-Control-Allow-Origin'] = ['*']
+    }
     callback({ responseHeaders: details.responseHeaders })
   })
 }

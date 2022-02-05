@@ -46,6 +46,12 @@
         </template>
         <el-space direction="vertical" alignment="start">
           <el-space>
+            <span>字体</span>
+            <el-select v-model="config.appMainFont" class="select-font" :style="`--font-preview: ${config.appMainFont}`" clearable placeholder="默认字体">
+              <el-option v-for="font in fontFamilies" :key="font" :style="`font-family: ${font}`" :value="font">{{font}}</el-option>
+            </el-select>
+          </el-space>
+          <el-space>
             <span>歌曲编号</span>
             <el-color-picker v-model="config.songNumberColor" size="small" />
             <el-checkbox v-model="config.songNumberEnabled" label="显示" />
@@ -91,6 +97,9 @@ body
     border: 1px solid #dcdfe6
     border-radius: 4px
     overflow-y: auto
+    .select-font .el-input__inner
+      width: 200px
+      font-family: var(--font-preview)
   .layout-right
     box-sizing: border-box
     overflow-y: auto
@@ -120,12 +129,15 @@ body
 </style>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { defaultConfig } from './util/appConfig'
 import { ElMessage } from 'element-plus'
 
 const storagedConfig = localStorage.getItem('config')
 const config = ref(storagedConfig && JSON.parse(storagedConfig) || defaultConfig)
+
+const fontFamilies = shallowRef([])
+window.electron.getFontFamilies().then(families => fontFamilies.value = families)
 
 function applyConfig() {
   localStorage.setItem('config', JSON.stringify(config.value))

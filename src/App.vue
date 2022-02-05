@@ -76,15 +76,26 @@ body
 </style>
 
 <script setup>
-import { markRaw, provide, ref } from 'vue'
+import { markRaw, provide, ref, shallowRef, onUnmounted, watchEffect } from 'vue'
 import SelectRoomPage from './component/SelectRoomPage.vue'
 // eslint-disable-next-line
 import MessageBanner from './component/MessageBanner.vue'
 import Icon from './asset/Icon.vue'
+import { defaultConfig } from './util/appConfig'
 
 const pageStack = ref([markRaw(SelectRoomPage)])
 const isBack = ref(false)
 const messageBanner = ref(null)
+
+const storagedConfig = localStorage.getItem('config')
+const config = shallowRef(storagedConfig && JSON.parse(storagedConfig) || defaultConfig)
+const cancelWatchConfig = window.electron.watchConfig(() => config.value = JSON.parse(localStorage.getItem('config')))
+onUnmounted(cancelWatchConfig)
+provide('config', config)
+
+watchEffect(() => {
+  document.body.style = `--app-main-font: ${config.value.appMainFont || 'UKai'}`
+})
 
 provide('globalStore', {})
 

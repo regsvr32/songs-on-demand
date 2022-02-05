@@ -19,6 +19,7 @@
     "core-js": "^3.6.5",
     "deepmerge": "^4.2.2",
     "element-plus": "^1.3.0-beta.9",
+    "node-system-fonts": "^1.0.1",
     "ping": "^0.4.1",
     "query-string": "^7.1.0",
     "vue": "^3.0.0"
