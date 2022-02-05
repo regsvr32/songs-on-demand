@@ -31,7 +31,6 @@
       <button v-if="isAccepting" class="pause" @click="isAccepting = false">暂停点歌</button>
       <button v-else-if="canAccept" class="start" @click="isAccepting = true">开启点歌</button>
       <span style="flex-grow: 1" />
-      <icon icon="move" />
       <icon icon="back" @click="back" />
     </div>
   </div>
@@ -43,11 +42,11 @@
     position: relative
     box-sizing: border-box
     text-align: center
-    height: 64px
+    height: min(64px, calc(6vw + 27px))
     padding-top: 8px
     white-space: nowrap
     div
-      font-size: 36px
+      font-size: min(36px, 6vw)
       font-style: italic
       font-weight: bold
       text-shadow: none
@@ -65,7 +64,6 @@
     width: calc(100vw - 12px)
     height: calc(100% - 144px)
     overflow-y: scroll
-    font-weight: bold
     padding-left: 16px
     .song-line
       position: relative
@@ -74,7 +72,7 @@
       white-space: nowrap
       overflow: hidden
       width: 100%
-      height: 36px
+      height: 32px
       display: flex
       border-radius: 4px
       margin-bottom: 2px
@@ -96,8 +94,8 @@
         right: 8px
         .icon
           cursor: pointer
-          width: 32px
-          height: 32px
+          width: 25px
+          height: 25px
           margin-left: 4px
           &.copy
             position: relative
@@ -121,27 +119,34 @@
       height: 0px
     .song-number, .demand-content-wrapper
       pointer-events: none
+    &.song-number-bold .song-number
+      font-weight: bold
     &.song-number-no-shadow .song-number
       text-shadow: none
     .song-number
       display: inline-block
       box-sizing: border-box
       width: 1.8em
+      padding-top: 1px
       padding-left: 4px
-      font-size: 30px
+      font-size: 25px
       color: var(--song-number-color)
       flex-shrink: 0
+    &.song-name-bold .song-name
+      font-weight: bold
     &.song-name-no-shadow .song-name
       text-shadow: none
     .song-name
-      font-size: 30px
+      font-size: 25px
       color: var(--song-name-color)
+    &.user-name-bold .user-name
+      font-weight: bold
     &.user-name-no-shadow .user-name
       text-shadow: none
     .user-name
       display: inline-block
-      font-size: 24px
-      vertical-align: 3px
+      font-size: 20px
+      vertical-align: 2px
       color: var(--user-name-color)
   .button-wrapper
     display: flex
@@ -180,12 +185,19 @@ const roomId = parseInt(localStorage.getItem('roomId'))
 const config = inject('config')
 
 const songListStyles = computed(() => {
-  const { songNumberColor, songNumberShadow, songNameColor, songNameShadow, userNameColor, userNameShadow } = config.value
+  const { 
+    songNumberColor, songNumberBold, songNumberShadow,
+    songNameColor, songNameBold, songNameShadow,
+    userNameColor, userNameBold, userNameShadow
+  } = config.value
   return {
     class: {
       'song-number-no-shadow': !songNumberShadow,
+      'song-number-bold': songNumberBold,
       'song-name-no-shadow': !songNameShadow,
-      'user-name-no-shadow': !userNameShadow
+      'song-name-bold': songNameBold,
+      'user-name-no-shadow': !userNameShadow,
+      'user-name-bold': userNameBold
     },
     style: {
       '--song-number-color': songNumberColor,
@@ -274,12 +286,14 @@ session.addEventListener('normal-message', ({ data }) => {
       const songLowerCase = song.toLowerCase()
       const today = new Date().setHours(0, 0, 0, 0)
 
+      const isAdmiral = medal[3] != roomId && medal[10] > 0 && medal[10] < 3
       const isBullyingSong = bullyingSongs.value.includes(songLowerCase)
+      const lastBuyGuard = getUserStatus(uid, 'buyGuard')
+      const isBuyGuardToday = lastBuyGuard && new Date(lastBuyGuard).setHours(0, 0, 0, 0) == today
+      
       if (isBullyingSong) {
-        const lastBuyGuard = getUserStatus(uid, 'buyGuard')
-        const isBuyGuardToday = lastBuyGuard && new Date(lastBuyGuard).setHours(0, 0, 0, 0) == today
-        if (!isBuyGuardToday) {
-          message.error('只有上舰当天可以点迫害歌')
+        if (!isBuyGuardToday && !isAdmiral) {
+          message.error('只有上舰当天或提督可以点迫害歌')
           return
         }
       }
@@ -295,11 +309,15 @@ session.addEventListener('normal-message', ({ data }) => {
       }
 
       if (isBullyingSong) {
-        if (getUserStatus(uid, 'bullied') == today) {
+        let allowTimes = 0
+        if (isBuyGuardToday) { allowTimes++ }
+        if (isAdmiral) { allowTimes++ }
+        const bullied = getUserStatus(uid, 'bullied') || {}
+        if (bullied.date == today && bullied.times >= allowTimes) {
           message.error(`${uname}，您今天已经点过迫害歌啦`)
           return
         }
-        saveUserStatus(uid, 'bullied', today)
+        saveUserStatus(uid, 'bullied', { date: today, times: (bullied.times || 0) + 1 })
       }
 
       const usePower = !isBullyingSong && match[1]

@@ -3,6 +3,15 @@
     <el-form class="configs" label-position="right" label-width="160px" @submit.prevent>
       <el-form-item>
         <template #label>
+          <span>窗口</span>
+        </template>
+        <el-space>
+          <span>底色</span>
+          <el-color-picker v-model="config.windowBackground" size="small" />
+        </el-space>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
           <el-space>
             <span>用户点歌CD</span>
             <el-switch v-model="config.userCdEnabled" />
@@ -55,16 +64,19 @@
             <span>歌曲编号</span>
             <el-color-picker v-model="config.songNumberColor" size="small" />
             <el-checkbox v-model="config.songNumberEnabled" label="显示" />
+            <el-checkbox v-model="config.songNumberBold" label="加粗" />
             <el-checkbox v-model="config.songNumberShadow" label="阴影" />
           </el-space>
           <el-space>
             <span>歌曲名称</span>
             <el-color-picker v-model="config.songNameColor" size="small" />
+            <el-checkbox v-model="config.songNameBold" label="加粗" />
             <el-checkbox v-model="config.songNameShadow" label="阴影" />
           </el-space>
           <el-space>
             <span>点歌用户</span>
             <el-color-picker v-model="config.userNameColor" size="small" />
+            <el-checkbox v-model="config.userNameBold" label="加粗" />
             <el-checkbox v-model="config.userNameShadow" label="阴影" />
           </el-space>
         </el-space>
@@ -134,7 +146,7 @@ import { defaultConfig } from './util/appConfig'
 import { ElMessage } from 'element-plus'
 
 const storagedConfig = localStorage.getItem('config')
-const config = ref(storagedConfig && JSON.parse(storagedConfig) || defaultConfig)
+const config = ref(storagedConfig && Object.assign({}, defaultConfig, JSON.parse(storagedConfig)) || defaultConfig)
 
 const fontFamilies = shallowRef([])
 window.electron.getFontFamilies().then(families => fontFamilies.value = families)

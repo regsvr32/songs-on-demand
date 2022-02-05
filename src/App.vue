@@ -11,10 +11,9 @@
 
 <style lang="sass">
 body
+  background-color: var(--window-background-color)
   color: #ffffff
   overflow: hidden
-  &.focused .window-frame
-    border: 4px dashed #ffffff80
 
 .full-window
   position: absolute
@@ -23,7 +22,6 @@ body
   left: 0px
   top: 0px
   box-sizing: border-box
-  border-radius: 12px
 
 .window-frame
   z-index: -1000
@@ -94,7 +92,7 @@ onUnmounted(cancelWatchConfig)
 provide('config', config)
 
 watchEffect(() => {
-  document.body.style = `--app-main-font: ${config.value.appMainFont || 'UKai'}`
+  document.body.style = `--app-main-font: ${config.value.appMainFont || 'UKai'}; --window-background-color: ${config.value.windowBackground || '#4c4c4c'}`
 })
 
 provide('globalStore', {})

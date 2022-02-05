@@ -32,8 +32,6 @@ async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     x, y, width, height,
-    frame: false,
-    transparent: true,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -42,7 +40,6 @@ async function createWindow() {
       preload: join(__dirname, './preload.js')
     }
   })
-  win.setAlwaysOnTop(true, "screen-saver")
   process.env.MAIN_WINDOW_ID = win.id
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

@@ -1,4 +1,5 @@
 export const defaultConfig = {
+  windowBackground: '#4c4c4c',
   userCdEnabled: true,
   userCdMinute: 15,
   listLimitEnabled: true,
@@ -9,10 +10,13 @@ export const defaultConfig = {
   appMainFont: '',
   songNumberEnabled: true,
   songNumberColor: '#ffffff',
+  songNumberBold: false,
   songNumberShadow: false,
   songNameColor: '#efe47a',
+  songNameBold: false,
   songNameShadow: true,
   userNameColor: '#ffffff',
+  userNameBold: false,
   userNameShadow: true,
   bullyingSongsRaw: ''
 }

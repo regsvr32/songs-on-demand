@@ -2,13 +2,13 @@
   <div class="select-room-page">
     <div class="select-room-layout">
       <div class="input-wrapper">
-        房间号: <input autofocus v-model="roomId" />&nbsp;
+        <span class="label">房间号: </span>
+        <input autofocus v-model="roomId" />&nbsp;
         <button :disabled="!roomId" @click="connect">连接</button>
       </div>
     </div>
     <icon icon="cogs" @click="openConfigWindow" />
     <icon icon="info" @click="pages.go(AboutPage)" />
-    <icon icon="move" />
     <icon icon="close" @click="close" />
   </div>
 </template>
@@ -22,9 +22,12 @@
     margin: auto
     .input-wrapper
       white-space: nowrap
-    .button-wrapper
-      padding-top: 8px
-      text-align: end
+      @media screen and (max-width: 450px)
+        display: flex
+        flex-direction: column
+        align-items: center
+        .label
+          padding-bottom: 12px
   .icon
     position: absolute
     bottom: 24px
