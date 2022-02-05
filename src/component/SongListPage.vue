@@ -286,7 +286,7 @@ session.addEventListener('normal-message', ({ data }) => {
       const songLowerCase = song.toLowerCase()
       const today = new Date().setHours(0, 0, 0, 0)
 
-      const isAdmiral = medal[3] != roomId && medal[10] > 0 && medal[10] < 3
+      const isAdmiral = medal[3] == roomId && medal[10] > 0 && medal[10] < 3
       const isBullyingSong = bullyingSongs.value.includes(songLowerCase)
       const lastBuyGuard = getUserStatus(uid, 'buyGuard')
       const isBuyGuardToday = lastBuyGuard && new Date(lastBuyGuard).setHours(0, 0, 0, 0) == today
