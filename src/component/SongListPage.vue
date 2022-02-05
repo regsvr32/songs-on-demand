@@ -294,6 +294,14 @@ session.addEventListener('normal-message', ({ data }) => {
         return
       }
 
+      if (isBullyingSong) {
+        if (getUserStatus(uid, 'bullied') == today) {
+          message.error(`${uname}，您今天已经点过迫害歌啦`)
+          return
+        }
+        saveUserStatus(uid, 'bullied', today)
+      }
+
       const usePower = !isBullyingSong && match[1]
       if (usePower) {
         if (!medal[10]) {
