@@ -317,7 +317,7 @@ session.addEventListener('normal-message', ({ data }) => {
           message.error(`${uname}，您今天已经点过迫害歌啦`)
           return
         }
-        saveUserStatus(uid, 'bullied', { date: today, times: (bullied.times || 0) + 1 })
+        saveUserStatus(uid, 'bullied', { date: today, times: bullied.date == today ? (bullied.times || 0) + 1 : 1 })
       }
 
       const usePower = !isBullyingSong && match[1]
@@ -336,9 +336,7 @@ session.addEventListener('normal-message', ({ data }) => {
           message.error('本周魔法点歌次数已耗尽')
           return
         }
-        powerUsage.week = week
-        powerUsage.times += 1
-        saveUserStatus(uid, 'powerUsage', powerUsage)
+        saveUserStatus(uid, 'powerUsage', { week, times: powerUsage.week == week ? (powerUsage.times || 0) + 1 : 1 })
       }
 
       const now = new Date().getTime()
