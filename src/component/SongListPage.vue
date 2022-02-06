@@ -38,6 +38,8 @@
 
 <style lang="sass" scoped>
 .song-list-page
+  display: flex
+  flex-direction: column
   .songs-full-banner
     position: relative
     box-sizing: border-box
@@ -62,7 +64,7 @@
   .song-list
     box-sizing: border-box
     width: calc(100vw - 12px)
-    height: calc(100% - 144px)
+    flex: 1
     overflow-y: scroll
     padding-left: 16px
     .song-line
