@@ -233,6 +233,11 @@ watchEffect(() => {
   if (isAccepting.value && !canAccept.value) { isAccepting.value = false }
 })
 
+let powerUsageThisTurn = {}
+watchEffect(() => {
+  if (isAccepting.value) { powerUsageThisTurn = {} }
+})
+
 const bullyingSongs = computed(() => {
   return config.value.bullyingSongsRaw.split('\n').map(str => str.trim().toLowerCase()).filter(str => str != '')
 })
@@ -332,12 +337,17 @@ session.addEventListener('normal-message', ({ data }) => {
           message.error('主播已关闭了魔法点歌')
           return
         }
+        if (powerUsageThisTurn[uid]) {
+          message.error(`${uname}，本轮您已经使用过魔法点歌次数啦`)
+          return
+        }
         const week = getWeek()
         const powerUsage = getUserStatus(uid, 'powerUsage') || { times: 0 }
         if (!guardPowerTimesInfinity && powerUsage.week == week && powerUsage.times >= guardPowerPerWeek) {
-          message.error('本周魔法点歌次数已耗尽')
+          message.error(`${uname}，您本周魔法点歌次数已耗尽`)
           return
         }
+        powerUsageThisTurn[uid] = true
         saveUserStatus(uid, 'powerUsage', { week, times: powerUsage.week == week ? (powerUsage.times || 0) + 1 : 1 })
       }
 
