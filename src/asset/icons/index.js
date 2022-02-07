@@ -1,7 +1,7 @@
-export { default as cogs } from '!!raw-loader!./cogs-solid.svg';
-export { default as info } from '!!raw-loader!./info-solid.svg';
-export { default as spinner } from '!!raw-loader!./spinner-solid.svg';
-export { default as close } from '!!raw-loader!./window-close-solid.svg';
+export { default as cogs } from '!!raw-loader!./cogs-solid.svg'
+export { default as info } from '!!raw-loader!./info-solid.svg'
+export { default as spinner } from '!!raw-loader!./spinner-solid.svg'
+export { default as close } from '!!raw-loader!./window-close-solid.svg'
 export { default as back } from '!!raw-loader!./arrow-alt-circle-left-regular.svg'
 export { default as check } from '!!raw-loader!./check-circle-solid.svg'
 export { default as times } from '!!raw-loader!./times-circle-solid.svg'

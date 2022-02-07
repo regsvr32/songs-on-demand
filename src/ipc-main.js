@@ -2,7 +2,7 @@ import { ipcMain, BrowserWindow } from 'electron'
 import ping from 'ping'
 import { decompress } from 'brotli'
 import { join } from 'path'
-import fontManager from 'node-system-fonts';
+import fontManager from 'node-system-fonts'
 
 let configWindow = null
 let fontFamilies = null

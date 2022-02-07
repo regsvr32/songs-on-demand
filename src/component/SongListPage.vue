@@ -267,7 +267,7 @@ function getUserStatus(uid, key) {
 
 function getWeek() {
   const now = new Date()
-  let weekday = now.getDay() - 2
+  let weekday = now.getDay() - 1
   if (weekday < 0) { weekday += 7 }
   now.setHours(0, 0, 0, 0)
   return now.setDate(now.getDate() - weekday)
