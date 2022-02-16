@@ -8,7 +8,7 @@
     </div>
     <div class="song-list" v-bind="songListStyles">
       <transition-group name="song-line">
-        <div class="song-line" v-for="({ uid, time, uname, song, privilege }, idx) in songList" :key="`${uid}-${time}`" :class="{ privilege }">
+        <div class="song-line" v-for="({ type, uid, time, uname, song }, idx) in songList" :key="`${uid}-${time}`" :class="{ privilege: type != 'normal' }">
           <span class="song-number" v-if="config.songNumberEnabled">{{idx + 1}}.</span>
           <span class="demand-content-wrapper">
             <span class="demand-content" :ref="setDemandContentRef">
@@ -226,7 +226,7 @@ function setDemandContentRef(el) {
 }
 
 const canAccept = computed(() => {
-  return !config.value.listLimitEnabled || songList.value.filter(({ privilege }) => !privilege).length < config.value.listLimitCount
+  return !config.value.listLimitEnabled || songList.value.filter(({ type }) => type == 'normal').length < config.value.listLimitCount
 })
 
 watchEffect(() => {
@@ -280,13 +280,39 @@ function getWeek() {
 
 const demandedSongs = loadStoragedJson(`demanded_${roomId}`, { songs: [] })
 
+function addSong(type, uid, time, uname, song) {
+  const songLowerCase = song.toLowerCase()
+  const today = new Date().setHours(0, 0, 0, 0)
+  
+  if (demandedSongs.date == today) {
+    demandedSongs.songs.push(songLowerCase)
+  }
+  else {
+    demandedSongs.date = today
+    demandedSongs.songs = [songLowerCase]
+  }
+  localStorage.setItem(`demanded_${roomId}`, JSON.stringify(demandedSongs))
+
+  const songData = { type, uid, time, uname, song }
+  if (['normal', 'power'].includes(type)) {
+    songList.value.push(songData)
+  }
+  else {
+    let idx = songList.value.findIndex(s => ['normal', 'power'].includes(s.type))
+    if (idx < 0) { idx = songList.value.length }
+    songList.value.splice(idx, 0, songData)
+  }
+  saveSongList()
+  message.success(`${song} 点歌成功`)
+}
+
 session.addEventListener('normal-message', ({ data }) => {
   logger.debug(data)
   switch (data.cmd) {
     //弹幕消息
     case 'DANMU_MSG': {
       const [ , msg, [uid, uname], medal] = data.info
-      const match = /^([仙妖魔膜][法术術])?[点點]歌\s*(.+)$/.exec(msg)
+      const match = /^([仙妖魔膜战][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
       if (!match) { return }
       const { userCdEnabled, guardPowerEnabled, guardPowerTimesInfinity, guardPowerPerWeek } = config.value
       const song = match[2].trim()
@@ -297,12 +323,14 @@ session.addEventListener('normal-message', ({ data }) => {
       const isBullyingSong = bullyingSongs.value.includes(songLowerCase)
       const lastBuyGuard = getUserStatus(uid, 'buyGuard')
       const isBuyGuardToday = lastBuyGuard && new Date(lastBuyGuard).setHours(0, 0, 0, 0) == today
+      let type = 'normal'
       
       if (isBullyingSong) {
         if (!isBuyGuardToday && !isAdmiral) {
           message.error('只有上舰当天或提督可以点迫害歌')
           return
         }
+        type = 'bullying'
       }
       
       if (!isBullyingSong && medal[3] != roomId) {
@@ -338,22 +366,22 @@ session.addEventListener('normal-message', ({ data }) => {
           return
         }
         if (powerUsageThisTurn[uid]) {
-          message.error(`${uname}，本轮您已经使用过魔法点歌次数啦`)
+          message.error(`${uname}，本轮您已经使用过魔法点歌啦`)
           return
         }
         const week = getWeek()
         const powerUsage = getUserStatus(uid, 'powerUsage') || { times: 0 }
-        if (!guardPowerTimesInfinity && powerUsage.week == week && powerUsage.times >= guardPowerPerWeek) {
+        if (!guardPowerTimesInfinity && powerUsage.week == week && powerUsage.times >= guardPowerPerWeek && medal[10] > 2) {
           message.error(`${uname}，您本周魔法点歌次数已耗尽`)
           return
         }
+        type = 'power'
         powerUsageThisTurn[uid] = true
         saveUserStatus(uid, 'powerUsage', { week, times: powerUsage.week == week ? (powerUsage.times || 0) + 1 : 1 })
       }
 
       const now = new Date().getTime()
-      const privilege = isBullyingSong || usePower
-      if (!privilege) {
+      if (!isBullyingSong && !usePower) {
         if (!isAccepting.value) {
           message.error('点歌已暂停，下一轮要手速快点哦')
           return
@@ -367,35 +395,21 @@ session.addEventListener('normal-message', ({ data }) => {
         }
         saveUserStatus(uid, 'demand', now)
       }
-
-      if (demandedSongs.date == today) {
-        demandedSongs.songs.push(songLowerCase)
-      }
-      else {
-        demandedSongs.date = today
-        demandedSongs.songs = [songLowerCase]
-      }
-      localStorage.setItem(`demanded_${roomId}`, JSON.stringify(demandedSongs))
-
-      const accept = { uid, time: now, uname, song, privilege }
-      songList.value[isBullyingSong ? 'unshift' : 'push'](accept)
-      saveSongList()
-      message.success(`${song} 点歌成功`)
+      
+      addSong(type, uid, now, uname, song)
       break
     }
     //SC
     case 'SUPER_CHAT_MESSAGE': {
-      const { message, uid, user_info: { uname } } = data.data
-      const match = /^[点點]歌\s*(.+)$/.exec(message)
+      const { message: msg, uid, user_info: { uname } } = data.data
+      const match = /^([仙妖魔膜战][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
       if (!match) { return }
-      const song = match[1].trim()
+      const song = match[2].trim()
       if (bullyingSongs.value.includes(song.toLowerCase())) {
         message.error('不支持SC点迫害歌，请在上舰当天使用普通弹幕点歌')
         return
       }
-      songList.value.unshift({ uid, time: new Date().getTime(), uname, song, privilege: true })
-      saveSongList()
-      message.success(`${song} 点歌成功`)
+      addSong('sc', uid, new Date().getTime(), uname, song)
       break
     }
     //上舰
