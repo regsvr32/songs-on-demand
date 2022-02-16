@@ -65,19 +65,19 @@
             <el-color-picker v-model="config.songNumberColor" size="small" />
             <el-checkbox v-model="config.songNumberEnabled" label="显示" />
             <el-checkbox v-model="config.songNumberBold" label="加粗" />
-            <el-checkbox v-model="config.songNumberShadow" label="阴影" />
+            <el-checkbox v-model="config.songNumberShadow" label="描边" />
           </el-space>
           <el-space>
             <span>歌曲名称</span>
             <el-color-picker v-model="config.songNameColor" size="small" />
             <el-checkbox v-model="config.songNameBold" label="加粗" />
-            <el-checkbox v-model="config.songNameShadow" label="阴影" />
+            <el-checkbox v-model="config.songNameShadow" label="描边" />
           </el-space>
           <el-space>
             <span>点歌用户</span>
             <el-color-picker v-model="config.userNameColor" size="small" />
             <el-checkbox v-model="config.userNameBold" label="加粗" />
-            <el-checkbox v-model="config.userNameShadow" label="阴影" />
+            <el-checkbox v-model="config.userNameShadow" label="描边" />
           </el-space>
         </el-space>
       </el-form-item>

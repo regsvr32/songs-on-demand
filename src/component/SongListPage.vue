@@ -121,10 +121,6 @@
       height: 0px
     .song-number, .demand-content-wrapper
       pointer-events: none
-    &.song-number-bold .song-number
-      font-weight: bold
-    &.song-number-no-shadow .song-number
-      text-shadow: none
     .song-number
       display: inline-block
       box-sizing: border-box
@@ -134,22 +130,21 @@
       font-size: 25px
       color: var(--song-number-color)
       flex-shrink: 0
-    &.song-name-bold .song-name
-      font-weight: bold
-    &.song-name-no-shadow .song-name
       text-shadow: none
     .song-name
       font-size: 25px
       color: var(--song-name-color)
-    &.user-name-bold .user-name
-      font-weight: bold
-    &.user-name-no-shadow .user-name
       text-shadow: none
     .user-name
       display: inline-block
       font-size: 20px
       vertical-align: 2px
       color: var(--user-name-color)
+      text-shadow: none
+    &.song-number-bold .song-number, &.song-name-bold .song-name, &.user-name-bold .user-name
+      font-weight: bold
+    &.song-number-shadow .song-number, &.song-name-shadow .song-name, &.user-name-shadow .user-name
+      text-shadow: 0px 1px #000000, 1px 0px #000000, -1px 0px #000000, 0px -1px #000000
   .button-wrapper
     display: flex
     padding: 20px
@@ -194,11 +189,11 @@ const songListStyles = computed(() => {
   } = config.value
   return {
     class: {
-      'song-number-no-shadow': !songNumberShadow,
+      'song-number-shadow': songNumberShadow,
       'song-number-bold': songNumberBold,
-      'song-name-no-shadow': !songNameShadow,
+      'song-name-shadow': songNameShadow,
       'song-name-bold': songNameBold,
-      'user-name-no-shadow': !userNameShadow,
+      'user-name-shadow': userNameShadow,
       'user-name-bold': userNameBold
     },
     style: {
@@ -283,9 +278,11 @@ const demandedSongs = loadStoragedJson(`demanded_${roomId}`, { songs: [] })
 function addSong(type, uid, time, uname, song) {
   const songLowerCase = song.toLowerCase()
   const today = new Date().setHours(0, 0, 0, 0)
-  
+
   if (demandedSongs.date == today) {
-    demandedSongs.songs.push(songLowerCase)
+    if (!demandedSongs.songs.includes(songLowerCase)) {
+      demandedSongs.songs.push(songLowerCase)
+    }
   }
   else {
     demandedSongs.date = today
@@ -305,6 +302,8 @@ function addSong(type, uid, time, uname, song) {
   saveSongList()
   message.success(`${song} 点歌成功`)
 }
+
+window.addSong = addSong
 
 session.addEventListener('normal-message', ({ data }) => {
   logger.debug(data)
