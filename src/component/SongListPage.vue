@@ -28,10 +28,17 @@
     <div class="button-wrapper">
       <icon icon="cogs" @click="openConfigWindow" />
       <span style="flex-grow: 1" />
+      <button @click="listLimitSelectPanelOpen = true">{{listLimitCount && `限${listLimitCount}首` || '曲数不限'}}</button>&nbsp;
       <button v-if="isAccepting" class="pause" @click="isAccepting = false">暂停点歌</button>
       <button v-else-if="canAccept" class="start" @click="isAccepting = true">开启点歌</button>
       <span style="flex-grow: 1" />
       <icon icon="back" @click="back" />
+      <div class="list-limit-select-panel" v-if="listLimitSelectPanelOpen" @click.prevent="listLimitSelectPanelOpen = false">
+        <button @click="listLimitCount = 5">限5首</button>
+        <button @click="listLimitCount = 10">限10首</button>
+        <button @click="listLimitCount = null">曲数不限</button>
+        <input placeholder="自定义" maxlength="3" @click.stop @blur="setCustomListLimitCount" @keydown="CustomListLimitInput" />
+      </div>
     </div>
   </div>
 </template>
@@ -146,6 +153,7 @@
     &.song-number-shadow .song-number, &.song-name-shadow .song-name, &.user-name-shadow .user-name
       text-shadow: 0px 1px #000000, 1px 0px #000000, -1px 0px #000000, 0px -1px #000000
   .button-wrapper
+    position: relative
     display: flex
     padding: 20px
     .pause
@@ -160,6 +168,31 @@
       &.move
         margin-right: 12px
         -webkit-app-region: drag
+    .list-limit-select-panel
+      position: absolute
+      top: 0px
+      left: 0px
+      width: 100%
+      height: 100%
+      box-sizing: border-box
+      padding: 10px
+      background-color: #00000080
+      text-align: center
+      button
+        font-size: 18px
+        margin-right: 12px
+        margin-bottom: 8px
+        border: 1px solid #ffffff
+      input
+        width: 50px
+        vertical-align: 1px
+        padding-top: 1px
+        padding-bottom: 4px
+        &:focus
+          border-color: #ffffff80
+        &::placeholder
+          font-size: 16px
+
 body:not(.focused) .button-wrapper
   visibility: hidden
 </style>
@@ -220,8 +253,28 @@ function setDemandContentRef(el) {
   })
 }
 
+const listLimitCount = ref(10)
+const listLimitSelectPanelOpen = ref(false)
+
+function setCustomListLimitCount({ target }) {
+  listLimitSelectPanelOpen.value = false
+  if (!target.value) { return }
+  listLimitCount.value = parseInt(target.value)
+  target.value = ''
+}
+
+function CustomListLimitInput(ev) {
+  const { key, target } = ev
+  if (key == 'Tab' || key == 'Backspace' || /^\d$/.test(key)) { return }
+  if (key == 'Enter') {
+    setCustomListLimitCount({ target })
+    return
+  }
+  ev.preventDefault()
+}
+
 const canAccept = computed(() => {
-  return !config.value.listLimitEnabled || songList.value.filter(({ type }) => type == 'normal').length < config.value.listLimitCount
+  return listLimitCount.value == null || songList.value.filter(({ type }) => type == 'normal').length < listLimitCount.value
 })
 
 watchEffect(() => {

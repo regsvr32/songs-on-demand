@@ -22,6 +22,7 @@
           <span>分钟</span>
         </el-space>
       </el-form-item>
+      <!--
       <el-form-item>
         <template #label>
           <el-space>
@@ -34,6 +35,7 @@
           <span>首</span>
         </el-space>
       </el-form-item>
+      -->
       <el-form-item>
         <template #label>
           <el-space>
