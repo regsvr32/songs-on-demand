@@ -28,12 +28,12 @@
     <div class="button-wrapper">
       <icon icon="cogs" @click="openConfigWindow" />
       <span style="flex-grow: 1" />
-      <button @click="listLimitSelectPanelOpen = true">{{listLimitCount && `限${listLimitCount}首` || '曲数不限'}}</button>&nbsp;
+      <button @click.stop="openListLimitSelectPanel">{{listLimitCount && `限${listLimitCount}首` || '曲数不限'}}</button>&nbsp;
       <button v-if="isAccepting" class="pause" @click="isAccepting = false">暂停点歌</button>
       <button v-else-if="canAccept" class="start" @click="isAccepting = true">开启点歌</button>
       <span style="flex-grow: 1" />
       <icon icon="back" @click="back" />
-      <div class="list-limit-select-panel" v-if="listLimitSelectPanelOpen" @click.prevent="listLimitSelectPanelOpen = false">
+      <div class="list-limit-select-panel" v-if="listLimitSelectPanelOpen">
         <button @click="listLimitCount = 5">限5首</button>
         <button @click="listLimitCount = 10">限10首</button>
         <button @click="listLimitCount = null">曲数不限</button>
@@ -256,6 +256,15 @@ function setDemandContentRef(el) {
 const listLimitCount = ref(10)
 const listLimitSelectPanelOpen = ref(false)
 
+function openListLimitSelectPanel() {
+  listLimitSelectPanelOpen.value = true
+  function closePanel() {
+    listLimitSelectPanelOpen.value = false
+    document.removeEventListener('click', closePanel)
+  }
+  document.addEventListener('click', closePanel)
+}
+
 function setCustomListLimitCount({ target }) {
   listLimitSelectPanelOpen.value = false
   if (!target.value) { return }
@@ -274,7 +283,7 @@ function CustomListLimitInput(ev) {
 }
 
 const canAccept = computed(() => {
-  return listLimitCount.value == null || songList.value.filter(({ type }) => type == 'normal').length < listLimitCount.value
+  return !listLimitCount.value || songList.value.filter(({ type }) => type == 'normal').length < listLimitCount.value
 })
 
 watchEffect(() => {
@@ -358,16 +367,21 @@ function addSong(type, uid, time, uname, song) {
 
 window.addSong = addSong
 
+function getDemandingSong(msg) {
+  const match = /^([仙妖魔膜战巫][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
+  if (!match) { return {} }
+  return { usePower: match[1], song: match[2].trim() }
+}
+
 session.addEventListener('normal-message', ({ data }) => {
   logger.debug(data)
   switch (data.cmd) {
     //弹幕消息
     case 'DANMU_MSG': {
       const [ , msg, [uid, uname], medal] = data.info
-      const match = /^([仙妖魔膜战][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
-      if (!match) { return }
+      const { usePower, song } = getDemandingSong(msg)
+      if (!song) { return }
       const { userCdEnabled, guardPowerEnabled, guardPowerTimesInfinity, guardPowerPerWeek } = config.value
-      const song = match[2].trim()
       const songLowerCase = song.toLowerCase()
       const today = new Date().setHours(0, 0, 0, 0)
 
@@ -407,8 +421,7 @@ session.addEventListener('normal-message', ({ data }) => {
         saveUserStatus(uid, 'bullied', { date: today, times: bullied.date == today ? (bullied.times || 0) + 1 : 1 })
       }
 
-      const usePower = !isBullyingSong && match[1]
-      if (usePower) {
+      if (!isBullyingSong && usePower) {
         if (!medal[10]) {
           message.error('只有舰长可以魔法点歌')
           return
@@ -454,9 +467,8 @@ session.addEventListener('normal-message', ({ data }) => {
     //SC
     case 'SUPER_CHAT_MESSAGE': {
       const { message: msg, uid, user_info: { uname } } = data.data
-      const match = /^([仙妖魔膜战][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
-      if (!match) { return }
-      const song = match[2].trim()
+      const { song } = getDemandingSong(msg)
+      if (!song) { return }
       if (bullyingSongs.value.includes(song.toLowerCase())) {
         message.error('不支持SC点迫害歌，请在上舰当天使用普通弹幕点歌')
         return
