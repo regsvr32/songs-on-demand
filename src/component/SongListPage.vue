@@ -299,6 +299,20 @@ const bullyingSongs = computed(() => {
   return config.value.bullyingSongsRaw.split('\n').map(str => str.trim().toLowerCase()).filter(str => str != '')
 })
 
+const songNameAlias = computed(() => {
+  const map = {}
+  for (let str of config.value.songNameAliasRaw.split('\n')) {
+    str = str.trim()
+    if (!str) { continue }
+    const idx = str.indexOf('=')
+    if (idx < 1) { continue }
+    const song = str.substring(idx + 1)
+    if (!song) { continue }
+    map[str.substring(0, idx)] = song
+  }
+  return map
+})
+
 /** @type {WebSocket} */
 let session = globalStore.roomChatSession
 
@@ -365,13 +379,23 @@ function addSong(type, uid, time, uname, song) {
   message.success(`${song} 点歌成功`)
 }
 
-window.addSong = addSong
-
 function getDemandingSong(msg) {
   const match = /^([仙妖魔膜战巫][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
-  if (!match) { return {} }
-  return { usePower: match[1], song: match[2].trim() }
+  if (match) {
+    return { usePower: match[1], song: match[2].trim() }
+  }
+  if (!config.value.songNameAliasEnable) { return {} }
+  if (songNameAlias.value[msg]) {
+    return { usePower: false, song: songNameAlias.value[msg] }
+  }
+  const matchTrim = /^(.+?)[吧呗]?[！？!?]?$/.exec(msg)
+  if (matchTrim && songNameAlias.value[matchTrim[1]]) {
+    return { usePower: false, song: songNameAlias.value[matchTrim[1]] }
+  }
+  return {}
 }
+
+Object.assign(window, { addSong, getDemandingSong })
 
 session.addEventListener('normal-message', ({ data }) => {
   logger.debug(data)

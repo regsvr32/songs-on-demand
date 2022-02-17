@@ -18,5 +18,7 @@ export const defaultConfig = {
   userNameColor: '#ffffff',
   userNameBold: false,
   userNameShadow: true,
-  bullyingSongsRaw: ''
+  bullyingSongsRaw: '',
+  songNameAliasEnable: true,
+  songNameAliasRaw: '指个月=左手指月\n淌个水=小河淌水\n趟个水=小河淌水\n按个铃=自己按门铃自己听\n那个歌=西京雁\n辣个歌=西京雁',
 }

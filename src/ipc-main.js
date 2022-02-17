@@ -35,7 +35,6 @@ export function regisiterApi() {
   ipcMain.on('open-config-window', () => {
     if (configWindow != null) { return }
     configWindow = new BrowserWindow({
-      alwaysOnTop: true,
       parent: BrowserWindow.fromId(process.env.MAIN_WINDOW_ID * 1),
       webPreferences: {
         nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
@@ -43,8 +42,15 @@ export function regisiterApi() {
         preload: join(__dirname, './manager-preload.js')
       }
     })
-    configWindow.loadURL((process.env.WEBPACK_DEV_SERVER_URL || 'app://./') + 'manager.html')
-    configWindow.once('closed', () => { configWindow = null })
+    configWindow.loadURL((process.env.WEBPACK_DEV_SERVER_URL || 'app://./') + 'manager.html').then(() => {
+      if (process.env.WEBPACK_DEV_SERVER_URL && !process.env.IS_TEST) {
+        configWindow.webContents.openDevTools({ mode: 'detach' })
+      }
+    })
+    configWindow.once('close', () => {
+      if (configWindow.webContents.isDevToolsOpened()) { configWindow.webContents.closeDevTools() }
+      configWindow = null
+    })
   })
 
   ipcMain.on('config-updated', () => {

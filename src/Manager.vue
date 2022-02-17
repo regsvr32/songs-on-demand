@@ -83,6 +83,15 @@
           </el-space>
         </el-space>
       </el-form-item>
+      <el-form-item>
+        <template #label>
+          <el-space>
+            <span>黑话点歌</span>
+            <el-switch v-model="config.songNameAliasEnable" />
+          </el-space>
+        </template>
+        <el-button @click="songNameAliasDrawer = true">黑话设置</el-button>
+      </el-form-item>
     </el-form>
     <el-form class="layout-right" label-position="top" @submit.prevent>
       <el-form-item>
@@ -93,6 +102,9 @@
       </el-form-item>
     </el-form>
   </div>
+  <el-drawer v-model="songNameAliasDrawer" title="黑话设置" :size="320" :show-close="false">
+    <el-input class="song-name-alias" type="textarea" v-model="config.songNameAliasRaw" resize="none" />
+  </el-drawer>
 </template>
 
 <style lang="sass">
@@ -140,6 +152,15 @@ body
 
 .el-color-picker__panel .el-color-dropdown__btns>.el-button--text:nth-child(2)
   display: none
+
+.el-drawer
+  .el-drawer__header
+    margin-bottom: 0px
+  .song-name-alias
+    height: 100%
+    .el-textarea__inner
+      height: 100%
+      padding-left: 10px
 </style>
 
 <script setup>
@@ -162,5 +183,7 @@ function applyConfig() {
     showClose: true
   })
 }
+
+const songNameAliasDrawer = ref(false)
 
 </script>
