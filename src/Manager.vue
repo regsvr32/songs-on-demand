@@ -63,6 +63,10 @@
             </el-select>
           </el-space>
           <el-space>
+            <span>描边颜色</span>
+            <el-color-picker v-model="config.textStokeColor" size="small" />
+          </el-space>
+          <el-space>
             <span>歌曲编号</span>
             <el-color-picker v-model="config.songNumberColor" size="small" />
             <el-checkbox v-model="config.songNumberEnabled" label="显示" />

@@ -8,6 +8,7 @@ export const defaultConfig = {
   guardPowerTimesInfinity: false,
   guardPowerPerWeek: 2,
   appMainFont: '',
+  textStokeColor: '#4c4c4c',
   songNumberEnabled: true,
   songNumberColor: '#ffffff',
   songNumberBold: false,

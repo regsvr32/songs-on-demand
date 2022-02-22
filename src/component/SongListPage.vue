@@ -151,7 +151,7 @@
     &.song-number-bold .song-number, &.song-name-bold .song-name, &.user-name-bold .user-name
       font-weight: bold
     &.song-number-shadow .song-number, &.song-name-shadow .song-name, &.user-name-shadow .user-name
-      text-shadow: 0px 1px #000000, 1px 0px #000000, -1px 0px #000000, 0px -1px #000000
+      text-shadow: 0px 1px var(--text-stoke-color), 1px 0px var(--text-stoke-color), -1px 0px var(--text-stoke-color), 0px -1px var(--text-stoke-color)
   .button-wrapper
     position: relative
     display: flex
@@ -215,7 +215,8 @@ const roomId = parseInt(localStorage.getItem('roomId'))
 const config = inject('config')
 
 const songListStyles = computed(() => {
-  const { 
+  const {
+    textStokeColor,
     songNumberColor, songNumberBold, songNumberShadow,
     songNameColor, songNameBold, songNameShadow,
     userNameColor, userNameBold, userNameShadow
@@ -230,6 +231,7 @@ const songListStyles = computed(() => {
       'user-name-bold': userNameBold
     },
     style: {
+      '--text-stoke-color': textStokeColor,
       '--song-number-color': songNumberColor,
       '--song-name-color': songNameColor,
       '--user-name-color': userNameColor
@@ -380,7 +382,7 @@ function addSong(type, uid, time, uname, song) {
 }
 
 function getDemandingSong(msg) {
-  const match = /^([仙妖魔膜战巫奧奥忍道邪][法术術]|法[术術]|超能力|原力|自然之力|邪能|魔法卡|陷阱卡|敲[头頭]|女[裝装]|物理)?[点點]歌\s*(.+)$/.exec(msg)
+  const match = /^([仙妖魔膜战巫奧奥忍道邪][法术術]|法[术術]|超能力|原力|自然之力|圣光|邪能|魔法卡|陷阱卡|敲[头頭]|女[裝装]|物理)?[点點]歌\s*(.+)$/.exec(msg)
   if (match) {
     let usePower = match[1]
     if (usePower == '物理') { usePower = null }
