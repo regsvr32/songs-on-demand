@@ -380,9 +380,11 @@ function addSong(type, uid, time, uname, song) {
 }
 
 function getDemandingSong(msg) {
-  const match = /^([仙妖魔膜战巫][法术術]|超能力)?[点點]歌\s*(.+)$/.exec(msg)
+  const match = /^([仙妖魔膜战巫奧奥忍道邪][法术術]|法[术術]|超能力|原力|自然之力|邪能|魔法卡|陷阱卡|敲[头頭]|女[裝装]|物理)?[点點]歌\s*(.+)$/.exec(msg)
   if (match) {
-    return { usePower: match[1], song: match[2].trim() }
+    let usePower = match[1]
+    if (usePower == '物理') { usePower = null }
+    return { usePower, song: match[2].trim() }
   }
   if (!config.value.songNameAliasEnable) { return {} }
   if (songNameAlias.value[msg]) {
