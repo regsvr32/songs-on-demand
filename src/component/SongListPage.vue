@@ -79,9 +79,9 @@
       box-sizing: border-box
       padding: 0px 0px 3px 8px
       white-space: nowrap
-      overflow: hidden
+      overflow-x: hidden
       width: 100%
-      height: 32px
+      min-height: 32px
       display: flex
       border-radius: 4px
       margin-bottom: 2px
@@ -99,7 +99,7 @@
       .song-actions
         display: none
         position: absolute
-        top: 2px
+        top: 3px
         right: 8px
         .icon
           cursor: pointer
@@ -134,17 +134,17 @@
       width: 1.8em
       padding-top: 1px
       padding-left: 4px
-      font-size: 25px
+      font-size: var(--text-size-primary)
       color: var(--song-number-color)
       flex-shrink: 0
       text-shadow: none
     .song-name
-      font-size: 25px
+      font-size: var(--text-size-primary)
       color: var(--song-name-color)
       text-shadow: none
     .user-name
       display: inline-block
-      font-size: 20px
+      font-size: var(--text-size-secondary)
       vertical-align: 2px
       color: var(--user-name-color)
       text-shadow: none
@@ -198,7 +198,7 @@ body:not(.focused) .button-wrapper
 </style>
 
 <script setup>
-import { ref, computed, watchEffect, inject, nextTick } from 'vue'
+import { ref, computed, watch, watchEffect, inject, nextTick } from 'vue'
 import logger from '../util/logger'
 import Icon from '../asset/Icon.vue'
 
@@ -216,7 +216,7 @@ const config = inject('config')
 
 const songListStyles = computed(() => {
   const {
-    textStokeColor,
+    textStokeColor, textSize,
     songNumberColor, songNumberBold, songNumberShadow,
     songNameColor, songNameBold, songNameShadow,
     userNameColor, userNameBold, userNameShadow
@@ -232,6 +232,8 @@ const songListStyles = computed(() => {
     },
     style: {
       '--text-stoke-color': textStokeColor,
+      '--text-size-primary': `${textSize}px`,
+      '--text-size-secondary': `${textSize - 5}px`,
       '--song-number-color': songNumberColor,
       '--song-name-color': songNameColor,
       '--user-name-color': userNameColor
@@ -248,12 +250,18 @@ const isAccepting = ref(false)
 
 function setDemandContentRef(el) {
   if (!el) { return }
+  el.classList.remove('text-scroll-alternate')
   nextTick(() => {
     const overflow = Math.min(0, el.parentElement.clientWidth - el.clientWidth - 8)
     el.style = `--scroll-width: ${overflow}px`
     el.classList.add('text-scroll-alternate')
   })
 }
+
+function adaptAllDemandContent() {
+  document.querySelectorAll('.song-list .demand-content').forEach(setDemandContentRef)
+}
+watch(() => config.value.textSize, adaptAllDemandContent)
 
 const listLimitCount = ref(10)
 const listLimitSelectPanelOpen = ref(false)

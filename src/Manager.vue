@@ -63,6 +63,8 @@
             </el-select>
           </el-space>
           <el-space>
+            <span>字号</span>
+            <el-input-number style="width: 80px" v-model="config.textSize" :min="10" :max="99" :precision="0" size="small" />
             <span>描边颜色</span>
             <el-color-picker v-model="config.textStokeColor" size="small" />
           </el-space>

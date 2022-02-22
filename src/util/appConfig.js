@@ -9,6 +9,7 @@ export const defaultConfig = {
   guardPowerPerWeek: 2,
   appMainFont: '',
   textStokeColor: '#4c4c4c',
+  textSize: 30,
   songNumberEnabled: true,
   songNumberColor: '#ffffff',
   songNumberBold: false,
