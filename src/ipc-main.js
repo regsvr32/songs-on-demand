@@ -36,6 +36,7 @@ export function regisiterApi() {
     if (configWindow != null) { return }
     configWindow = new BrowserWindow({
       parent: BrowserWindow.fromId(process.env.MAIN_WINDOW_ID * 1),
+      height: 640,
       webPreferences: {
         nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
         contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,

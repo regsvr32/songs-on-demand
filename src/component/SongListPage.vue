@@ -81,7 +81,7 @@
       white-space: nowrap
       overflow-x: hidden
       width: 100%
-      min-height: 32px
+      height: var(--song-line-height)
       display: flex
       border-radius: 4px
       margin-bottom: 2px
@@ -234,6 +234,7 @@ const songListStyles = computed(() => {
       '--text-stoke-color': textStokeColor,
       '--text-size-primary': `${textSize}px`,
       '--text-size-secondary': `${textSize - 5}px`,
+      '--song-line-height': `${Math.max(32, Math.ceil(1.12 * textSize + 2.8))}px`,
       '--song-number-color': songNumberColor,
       '--song-name-color': songNameColor,
       '--user-name-color': userNameColor
@@ -376,12 +377,15 @@ function addSong(type, uid, time, uname, song) {
   }
   localStorage.setItem(`demanded_${roomId}`, JSON.stringify(demandedSongs))
 
+  const { fixBottomSong } = config.value
+
   const songData = { type, uid, time, uname, song }
-  if (['normal', 'power'].includes(type)) {
+  if (song == fixBottomSong) {
     songList.value.push(songData)
   }
   else {
-    let idx = songList.value.findIndex(s => ['normal', 'power'].includes(s.type))
+    const isNormal = ['normal', 'power'].includes(type)
+    let idx = songList.value.findIndex(s => s.song == fixBottomSong || (!isNormal && ['normal', 'power'].includes(s.type)))
     if (idx < 0) { idx = songList.value.length }
     songList.value.splice(idx, 0, songData)
   }
@@ -530,7 +534,7 @@ function removeSong(idx) {
 }
 
 function pinToTop(idx) {
-  if (idx == 0) { return }
+  if (idx == 0 || songList.value[idx].song == config.value.fixBottomSong) { return }
   const [item] = songList.value.splice(idx, 1)
   nextTick(() => {
     songList.value.unshift(item)

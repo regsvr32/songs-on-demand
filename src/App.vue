@@ -86,7 +86,7 @@ const isBack = ref(false)
 const messageBanner = ref(null)
 
 const storagedConfig = localStorage.getItem('config')
-const config = shallowRef(storagedConfig && JSON.parse(storagedConfig) || defaultConfig)
+const config = shallowRef(Object.assign({}, defaultConfig, storagedConfig && JSON.parse(storagedConfig) || {}))
 const cancelWatchConfig = window.electron.watchConfig(() => config.value = JSON.parse(localStorage.getItem('config')))
 onUnmounted(cancelWatchConfig)
 provide('config', config)

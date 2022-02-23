@@ -92,6 +92,14 @@
       <el-form-item>
         <template #label>
           <el-space>
+            <span>置底歌曲</span>
+          </el-space>
+        </template>
+        <el-input style="width: 250px" v-model="config.fixBottomSong" />
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <el-space>
             <span>黑话点歌</span>
             <el-switch v-model="config.songNameAliasEnable" />
           </el-space>
