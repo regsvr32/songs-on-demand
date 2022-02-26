@@ -126,8 +126,6 @@
       transition: height 0.2s ease
     .song-line-enter-from, .song-line-leave-to
       height: 0px
-    .song-number, .demand-content-wrapper
-      pointer-events: none
     .song-number
       display: inline-block
       box-sizing: border-box
@@ -165,9 +163,6 @@
       color: #ffffff
       opacity: 0.6
       filter: drop-shadow(0px 0px 3px #00000080)
-      &.move
-        margin-right: 12px
-        -webkit-app-region: drag
     .list-limit-select-panel
       position: absolute
       top: 0px

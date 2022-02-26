@@ -42,9 +42,6 @@
   .info
     width: 12px
     left: 108px
-  .move
-    right: 108px
-    -webkit-app-region: drag
   .close
     right: 36px
 </style>
