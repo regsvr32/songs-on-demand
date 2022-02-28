@@ -355,22 +355,27 @@ function getWeek() {
   return now.setDate(now.getDate() - weekday)
 }
 
-const demandedSongs = loadStoragedJson(`demanded_${roomId}`, { songs: [] })
+let demandedRecently = loadStoragedJson(`demanded_recently_${roomId}`, [])
+const sameSongBanExcept = computed(() => {
+  return config.value.sameSongBanExceptRaw.split('|').map(str => str.trim().toLowerCase()).filter(str => str != '')
+})
 
-function addSong(type, uid, time, uname, song) {
-  const songLowerCase = song.toLowerCase()
-  const today = new Date().setHours(0, 0, 0, 0)
-
-  if (demandedSongs.date == today) {
-    if (!demandedSongs.songs.includes(songLowerCase)) {
-      demandedSongs.songs.push(songLowerCase)
+function addSong(type, uid, time, uname, song, valid = true) {
+  if (valid) {
+    const songLowerCase = song.toLowerCase()
+    const today = new Date().setHours(0, 0, 0, 0)
+    const after = today - (config.value.sameSongBanDays - 1) * 24 * 60 * 60 * 1000
+    demandedRecently = demandedRecently.filter(({ date }) => date >= after)
+    let demandedToday = demandedRecently.find(({ date }) => date == today)
+    if (!demandedToday) {
+      demandedToday = { date: today, songs: [] }
+      demandedRecently.push(demandedToday)
     }
+    if (!demandedToday.songs.includes(songLowerCase)) {
+       demandedToday.songs.push(songLowerCase)
+    }
+    localStorage.setItem(`demanded_recently_${roomId}`, JSON.stringify(demandedRecently))
   }
-  else {
-    demandedSongs.date = today
-    demandedSongs.songs = [songLowerCase]
-  }
-  localStorage.setItem(`demanded_${roomId}`, JSON.stringify(demandedSongs))
 
   const { fixBottomSong } = config.value
 
@@ -385,7 +390,24 @@ function addSong(type, uid, time, uname, song) {
     songList.value.splice(idx, 0, songData)
   }
   saveSongList()
-  message.success(`${song} 点歌成功`)
+  if (valid) {
+    message.success(`${song} 点歌成功`)
+  }
+}
+
+function checkSameSongRecently(song) {
+  const songLowerCase = song.toLowerCase()
+  const today = new Date().setHours(0, 0, 0, 0)
+  const after = today - (config.value.sameSongBanDays - 1) * 24 * 60 * 60 * 1000
+  for (const { date, songs } of demandedRecently) {
+    if (date < after) { continue }
+    if (date != today && sameSongBanExcept.value.includes(songLowerCase)) { continue }
+    if (songs.includes(songLowerCase)) {
+      message.error(`最近已经点过${song}啦`)
+      return false
+    }
+  }
+  return true
 }
 
 function getDemandingSong(msg) {
@@ -439,10 +461,7 @@ session.addEventListener('normal-message', ({ data }) => {
         return
       }
 
-      if (demandedSongs.date == today && demandedSongs.songs.includes(songLowerCase)) {
-        message.error(`今天已经点过${song}啦`)
-        return
-      }
+      if (!checkSameSongRecently(song)) { return }
 
       if (isBullyingSong) {
         let allowTimes = 0
@@ -504,11 +523,14 @@ session.addEventListener('normal-message', ({ data }) => {
       const { message: msg, uid, user_info: { uname } } = data.data
       const { song } = getDemandingSong(msg)
       if (!song) { return }
-      if (bullyingSongs.value.includes(song.toLowerCase())) {
+      const songLowerCase = song.toLowerCase()
+      let songValid = true
+      if (bullyingSongs.value.includes(songLowerCase)) {
         message.error('不支持SC点迫害歌，请在上舰当天使用普通弹幕点歌')
-        return
+        songValid = false
       }
-      addSong('sc', uid, new Date().getTime(), uname, song)
+      songValid &&= checkSameSongRecently(song)
+      addSong('sc', uid, new Date().getTime(), uname, songValid ? song : '***无效SC点歌，请换歌***', songValid)
       break
     }
     //上舰

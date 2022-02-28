@@ -18,24 +18,10 @@
           </el-space>
         </template>
         <el-space>
-          <el-input-number v-model="config.userCdMinute" :min="1" :precision="0" :disabled="!config.userCdEnabled" />
+          <el-input-number v-model="config.userCdMinute" size="small" :min="1" :precision="0" :disabled="!config.userCdEnabled" />
           <span>分钟</span>
         </el-space>
       </el-form-item>
-      <!--
-      <el-form-item>
-        <template #label>
-          <el-space>
-            <span>歌单限制</span>
-            <el-switch v-model="config.listLimitEnabled" />
-          </el-space>
-        </template>
-        <el-space>
-          <el-input-number v-model="config.listLimitCount" :min="1" :precision="0" :disabled="!config.listLimitEnabled" />
-          <span>首</span>
-        </el-space>
-      </el-form-item>
-      -->
       <el-form-item>
         <template #label>
           <el-space>
@@ -45,10 +31,23 @@
         </template>
         <el-space direction="vertical" alignment="start">
           <el-space>
-            <el-input-number v-model="config.guardPowerPerWeek" :min="1" :precision="0" :disabled="!config.guardPowerEnabled || config.guardPowerTimesInfinity" />
+            <el-input-number v-model="config.guardPowerPerWeek" size="small" :min="1" :precision="0" :disabled="!config.guardPowerEnabled || config.guardPowerTimesInfinity" />
             <span>次/周(每周一重置)</span>
           </el-space>
           <el-checkbox v-model="config.guardPowerTimesInfinity" :disabled="!config.guardPowerEnabled" label="次数不限" />
+        </el-space>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <span>相同歌曲CD</span>
+        </template>
+        <el-space direction="vertical" alignment="start">
+          <el-space>
+            <el-input-number style="width: 80px" size="small" v-model="config.sameSongBanDays" :min="1" :max="99" :precision="0" />
+            <span>天</span>
+            <span>↓例外('|'分隔)</span>
+          </el-space>
+          <el-input style="width: 250px" v-model="config.sameSongBanExceptRaw" />
         </el-space>
       </el-form-item>
       <el-form-item>
