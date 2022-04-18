@@ -415,7 +415,11 @@ function getDemandingSong(msg) {
   if (match) {
     let usePower = match[1]
     if (usePower == '物理') { usePower = null }
-    return { usePower, song: match[2].trim() }
+    let song = match[2].trim()
+    if (config.value.songNameAliasEnable && songNameAlias.value[song]) {
+      song = songNameAlias.value[song];
+    }
+    return { usePower, song }
   }
   if (!config.value.songNameAliasEnable) { return {} }
   if (songNameAlias.value[msg]) {
@@ -501,7 +505,7 @@ session.addEventListener('normal-message', ({ data }) => {
 
       const now = new Date().getTime()
       if (!isBullyingSong && !usePower) {
-        if (!isAccepting.value) {
+        if (!isAccepting.value || !canAccept.value) {
           message.error('点歌已暂停，下一轮要手速快点哦')
           return
         }
