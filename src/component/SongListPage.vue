@@ -418,8 +418,13 @@ function getDemandingSong(msg) {
     let usePower = match[1]
     if (usePower == '物理') { usePower = null }
     let song = match[2].trim()
+    let mongoliaTopSolo = /^(.+)\{~(.+)\}$/.exec(song)
+    if (mongoliaTopSolo) {
+      const [ , obfuscated, removeChars] = mongoliaTopSolo
+      song = [...obfuscated].filter(c => !removeChars.includes(c)).join('')
+    }
     if (config.value.songNameAliasEnable && songNameAlias.value[song]) {
-      song = songNameAlias.value[song];
+      song = songNameAlias.value[song]
     }
     return { usePower, song }
   }
@@ -442,6 +447,7 @@ session.addEventListener('normal-message', ({ data }) => {
     //弹幕消息
     case 'DANMU_MSG': {
       const [ , msg, [uid, uname], medal] = data.info
+      if (danmakuCommand(msg, uid, uname, { anchor_roomid: medal[3], guard_level: medal[10] })) { return }
       const { usePower, song } = getDemandingSong(msg)
       if (!song) { return }
       const { userCdEnabled, guardPowerEnabled, guardPowerTimesInfinity, guardPowerPerWeek } = config.value
@@ -526,7 +532,8 @@ session.addEventListener('normal-message', ({ data }) => {
     }
     //SC
     case 'SUPER_CHAT_MESSAGE': {
-      const { message: msg, uid, user_info: { uname } } = data.data
+      const { message: msg, uid, user_info: { uname }, medal_info } = data.data
+      if (danmakuCommand(msg, uid, uname, medal_info || {})) { return }
       const { song } = getDemandingSong(msg)
       if (!song) { return }
       const songLowerCase = song.toLowerCase()
@@ -573,5 +580,32 @@ function copyText(text, el) {
   hint.className = 'copy-hint'
   el.appendChild(hint)
   setTimeout(() => { hint.remove() }, 400)
+}
+
+function danmakuCommand(msg, uid, uname, { anchor_roomid, guard_level }) {
+  if (msg.match(/^#(查询魔[力法]|魔[力法]查询)/)) {
+    if (config.value.guardPowerTimesInfinity) {
+      message.success('当前处于无限火力模式，魔法点歌次数不限')
+    }
+    else if (anchor_roomid != roomId) {
+      message.error('查询魔力时请佩戴主播勋章')
+    }
+    else if (!guard_level) {
+      message.error('需要成为舰长才可解锁魔力')
+    }
+    else {
+      let times = config.value.guardPowerPerWeek
+      if (guard_level > 2) { times = '∞' }
+      else {
+        const powerUsage = getUserStatus(uid, 'powerUsage') || {}
+        if (powerUsage.week == getWeek()) {
+          times = Math.max(0, times - powerUsage.times)
+        }
+      }
+      message.success(`${uname}，您本周还可以使用${times}次魔法`)
+    }
+    return true
+  }
+  return false
 }
 </script>
