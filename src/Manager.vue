@@ -91,7 +91,7 @@
       <el-form-item>
         <template #label>
           <el-space>
-            <span>置底歌曲</span>
+            <span>置底歌曲('|'分隔)</span>
           </el-space>
         </template>
         <el-input style="width: 250px" v-model="config.fixBottomSong" />

@@ -360,9 +360,13 @@ const sameSongBanExcept = computed(() => {
   return config.value.sameSongBanExceptRaw.split('|').map(str => str.trim().toLowerCase()).filter(str => str != '')
 })
 
+const fixBottomSongs = computed(() => {
+  return config.value.fixBottomSong.split('|').map(str => str.trim().toLowerCase()).filter(str => str != '')
+})
+
 function addSong(type, uid, time, uname, song, valid = true) {
+  const songLowerCase = song.toLowerCase()
   if (valid) {
-    const songLowerCase = song.toLowerCase()
     const today = new Date().setHours(0, 0, 0, 0)
     const after = today - (config.value.sameSongBanDays - 1) * 24 * 60 * 60 * 1000
     demandedRecently = demandedRecently.filter(({ date }) => date >= after)
@@ -377,15 +381,13 @@ function addSong(type, uid, time, uname, song, valid = true) {
     localStorage.setItem(`demanded_recently_${roomId}`, JSON.stringify(demandedRecently))
   }
 
-  const { fixBottomSong } = config.value
-
   const songData = { type, uid, time, uname, song }
-  if (song == fixBottomSong) {
+  if (fixBottomSongs.value.includes(songLowerCase)) {
     songList.value.push(songData)
   }
   else {
     const isNormal = ['normal', 'power'].includes(type)
-    let idx = songList.value.findIndex(s => s.song == fixBottomSong || (!isNormal && ['normal', 'power'].includes(s.type)))
+    let idx = songList.value.findIndex(s => fixBottomSongs.value.includes(s.song.toLowerCase()) || (!isNormal && ['normal', 'power'].includes(s.type)))
     if (idx < 0) { idx = songList.value.length }
     songList.value.splice(idx, 0, songData)
   }
@@ -555,7 +557,7 @@ function removeSong(idx) {
 }
 
 function pinToTop(idx) {
-  if (idx == 0 || songList.value[idx].song == config.value.fixBottomSong) { return }
+  if (idx == 0 || fixBottomSongs.value.includes(songList.value[idx].song.toLowerCase())) { return }
   const [item] = songList.value.splice(idx, 1)
   nextTick(() => {
     songList.value.unshift(item)
