@@ -595,7 +595,7 @@ function danmakuCommand(msg, uid, uname, { anchor_roomid, guard_level }) {
     }
     else {
       let times = config.value.guardPowerPerWeek
-      if (guard_level > 2) { times = '∞' }
+      if (guard_level < 3) { times = '∞' }
       else {
         const powerUsage = getUserStatus(uid, 'powerUsage') || {}
         if (powerUsage.week == getWeek()) {
