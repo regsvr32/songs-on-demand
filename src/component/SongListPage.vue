@@ -443,7 +443,7 @@ Object.assign(window, { addSong, getDemandingSong })
 
 session.addEventListener('normal-message', ({ data }) => {
   logger.debug(data)
-  switch (data.cmd) {
+  switch (data.cmd && data.cmd.split(':')[0]) {
     //弹幕消息
     case 'DANMU_MSG': {
       const [ , msg, [uid, uname], medal] = data.info
