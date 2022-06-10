@@ -244,9 +244,11 @@ function saveSongList() {
 
 const isAccepting = ref(false)
 
-function setDemandContentRef(el) {
+function setDemandContentScrollClass(el, reset) {
   if (!el) { return }
-  el.classList.remove('text-scroll-alternate')
+  if (reset) {
+    el.classList.remove('text-scroll-alternate')
+  }
   nextTick(() => {
     const overflow = Math.min(0, el.parentElement.clientWidth - el.clientWidth - 8)
     el.style = `--scroll-width: ${overflow}px`
@@ -254,8 +256,12 @@ function setDemandContentRef(el) {
   })
 }
 
+function setDemandContentRef(el) {
+  setDemandContentScrollClass(el, false)
+}
+
 function adaptAllDemandContent() {
-  document.querySelectorAll('.song-list .demand-content').forEach(setDemandContentRef)
+  document.querySelectorAll('.song-list .demand-content').forEach(el => setDemandContentScrollClass(el, true))
 }
 watch(() => config.value.textSize, adaptAllDemandContent)
 
@@ -413,15 +419,17 @@ function checkSameSongRecently(song) {
 }
 
 function getDemandingSong(msg) {
-  const match = /^([仙妖魔膜战巫奧奥忍道邪][法术術]|法[术術]|超能力|原力|自然之力|圣光|邪能|魔法卡|陷阱卡|敲[头頭]|女[裝装]|物理)?[点點]歌\s*(.+)$/.exec(msg)
+  const match = /^([仙妖魔膜战巫奧奥忍道邪][法术術]|法[术術]|超能力|原力|自然之力|圣光|邪能|魔法卡|陷阱卡|敲[头頭]|女[裝装]|物理)?[点點]歌(\s*)(.+)$/.exec(msg)
   if (match) {
+    if (config.value.demandMsgSpaceRequired && !match[2]) { return {} }
     let usePower = match[1]
     if (usePower == '物理') { usePower = null }
-    let song = match[2].trim()
+    let song = match[3].trim()
     let mongoliaTopSolo = /^(.+)\{~(.+)\}$/.exec(song)
     if (mongoliaTopSolo) {
       const [ , obfuscated, removeChars] = mongoliaTopSolo
       song = [...obfuscated].filter(c => !removeChars.includes(c)).join('')
+      if (!song) { return {} }
     }
     if (config.value.songNameAliasEnable && songNameAlias.value[song]) {
       song = songNameAlias.value[song]

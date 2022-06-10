@@ -57,4 +57,8 @@ export function regisiterApi() {
   ipcMain.on('config-updated', () => {
     BrowserWindow.fromId(process.env.MAIN_WINDOW_ID * 1).webContents.send('config-updated')
   })
+
+  ipcMain.on('set-keep-window-top', (_, keepTop) => {
+    BrowserWindow.fromId(process.env.MAIN_WINDOW_ID * 1).setAlwaysOnTop(keepTop)
+  })
 }

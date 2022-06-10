@@ -26,5 +26,8 @@ contextBridge.exposeInMainWorld('electron', {
   },
   copyText(text) {
     clipboard.writeText(text)
+  },
+  setKeepWindowTop(keepTop) {
+    ipcRenderer.send('set-keep-window-top', keepTop)
   }
 })

@@ -8,6 +8,8 @@
         <el-space>
           <span>底色</span>
           <el-color-picker v-model="config.windowBackground" size="small" />
+          <span>置顶</span>
+          <el-switch v-model="config.keepWindowTop" />
         </el-space>
       </el-form-item>
       <el-form-item>
@@ -104,6 +106,19 @@
           </el-space>
         </template>
         <el-button @click="songNameAliasDrawer = true">黑话设置</el-button>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <el-space>
+            <span>其他</span>
+          </el-space>
+        </template>
+        <el-space direction="vertical" alignment="start">
+          <el-space>
+            <span>点歌弹幕歌名前需要加空格</span>
+            <el-switch v-model="config.demandMsgSpaceRequired" />
+          </el-space>
+        </el-space>
       </el-form-item>
     </el-form>
     <el-form class="layout-right" label-position="top" @submit.prevent>

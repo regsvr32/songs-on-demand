@@ -74,7 +74,7 @@ body
 </style>
 
 <script setup>
-import { markRaw, provide, ref, shallowRef, onUnmounted, watchEffect } from 'vue'
+import { markRaw, provide, ref, shallowRef, onUnmounted, watch, watchEffect } from 'vue'
 import SelectRoomPage from './component/SelectRoomPage.vue'
 // eslint-disable-next-line
 import MessageBanner from './component/MessageBanner.vue'
@@ -94,6 +94,7 @@ provide('config', config)
 watchEffect(() => {
   document.body.style = `--app-main-font: ${config.value.appMainFont || 'UKai'}; --window-background-color: ${config.value.windowBackground || '#4c4c4c'}`
 })
+watch(() => config.value.keepWindowTop, keepTop => window.electron.setKeepWindowTop(keepTop), { immediate: true })
 
 provide('globalStore', {})
 
