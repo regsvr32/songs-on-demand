@@ -27,5 +27,7 @@ export const defaultConfig = {
   sameSongBanDays: 2,
   sameSongBanExceptRaw: "激光中",
   demandMsgSpaceRequired: true,
-  keepWindowTop: false
+  keepWindowTop: false,
+  demandRequireMedalLevel: true,
+  demandMinMedalLevel: 5
 }

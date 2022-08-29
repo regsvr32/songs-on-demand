@@ -458,7 +458,7 @@ session.addEventListener('normal-message', ({ data }) => {
       if (danmakuCommand(msg, uid, uname, { anchor_roomid: medal[3], guard_level: medal[10] })) { return }
       const { usePower, song } = getDemandingSong(msg)
       if (!song) { return }
-      const { userCdEnabled, guardPowerEnabled, guardPowerTimesInfinity, guardPowerPerWeek } = config.value
+      const { userCdEnabled, guardPowerEnabled, guardPowerTimesInfinity, guardPowerPerWeek, demandRequireMedalLevel, demandMinMedalLevel } = config.value
       const songLowerCase = song.toLowerCase()
       const today = new Date().setHours(0, 0, 0, 0)
 
@@ -477,7 +477,7 @@ session.addEventListener('normal-message', ({ data }) => {
       }
       
       if (!isBullyingSong && medal[3] != roomId) {
-        message.error('未佩戴主播勋章，点歌无效')
+        message.error('未佩戴主播粉丝牌，点歌无效')
         return
       }
 
@@ -532,6 +532,11 @@ session.addEventListener('normal-message', ({ data }) => {
             return
           }
         }
+        if (demandRequireMedalLevel && medal[0] < demandMinMedalLevel) {
+            message.error(`粉丝牌不低于${demandMinMedalLevel}级才可以点歌哦`)
+            return
+        }
+
         saveUserStatus(uid, 'demand', now)
       }
       
@@ -596,7 +601,7 @@ function danmakuCommand(msg, uid, uname, { anchor_roomid, guard_level }) {
       message.success('当前处于无限火力模式，魔法点歌次数不限')
     }
     else if (anchor_roomid != roomId) {
-      message.error('查询魔力时请佩戴主播勋章')
+      message.error('查询魔力时请佩戴主播粉丝牌')
     }
     else if (!guard_level) {
       message.error('需要成为舰长才可解锁魔力')

@@ -27,6 +27,18 @@
       <el-form-item>
         <template #label>
           <el-space>
+            <span>点歌限制</span>
+            <el-switch v-model="config.demandRequireMedalLevel" />
+          </el-space>
+        </template>
+        <el-space>
+          <span>粉丝牌等级≧</span>
+          <el-input-number v-model="config.demandMinMedalLevel" size="small" :min="1" :precision="0" :disabled="!config.demandRequireMedalLevel" />
+        </el-space>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <el-space>
             <span>舰长魔法点歌</span>
             <el-switch v-model="config.guardPowerEnabled" />
           </el-space>
