@@ -52,6 +52,7 @@ import SongListPage from './SongListPage.vue'
 import AboutPage from './AboutPage.vue'
 import { connectRoomChat } from '../util/bilibiliLiveRoomChat'
 import Icon from '../asset/Icon.vue'
+import logger from '../util/logger'
 
 const globalStore = inject('globalStore')
 const pages = inject('pages')
@@ -65,7 +66,10 @@ function connect() {
   blocking(connectRoomChat(roomId.value)).then(session => {
     globalStore.roomChatSession = session
     pages.go(SongListPage)
-  }).catch(message.error)
+  }).catch(err => {
+    message.error(err.message || err)
+    logger.error(JSON.stringify(err, Object.getOwnPropertyNames(err)))
+  })
 }
 
 function openConfigWindow() {

@@ -26,3 +26,5 @@ pnpm-debug.log*
 /dist_electron
 
 *.local.txt
+build/config.gypi
+log.txt

@@ -3,6 +3,7 @@ import ping from 'ping'
 import { decompress } from 'brotli'
 import { join } from 'path'
 import fontManager from 'node-system-fonts'
+import { appendFileSync } from 'fs'
 
 let configWindow = null
 let fontFamilies = null
@@ -10,7 +11,8 @@ let fontFamilies = null
 export function regisiterApi() {
   ipcMain.handle('select-fastest', (_, host_list) => {
     return Promise.any(host_list.map(async host => {
-      await ping.promise.probe(host.host)
+      const { alive } = await ping.promise.probe(host.host)
+      if (!alive) { throw new Error('host not alive') }
       return host
     }))
   })
@@ -60,5 +62,9 @@ export function regisiterApi() {
 
   ipcMain.on('set-keep-window-top', (_, keepTop) => {
     BrowserWindow.fromId(process.env.MAIN_WINDOW_ID * 1).setAlwaysOnTop(keepTop)
+  })
+
+  ipcMain.on('write-log', (_, level, msg) => {
+    appendFileSync('./log.txt', `[${level}][${new Date().toLocaleString()}] ${msg}\n`)
   })
 }

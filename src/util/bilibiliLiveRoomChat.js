@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer/'
 import blobToBuffer from 'blob-to-buffer'
 import { httpGet } from './httpRequest'
+import logger from './logger'
 
 async function getRoomInfo(id) {
   return await httpGet('https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo', { id })
@@ -20,6 +21,7 @@ export async function connectRoomChat(roomId) {
   if (code !== 0) { throw message }
   const { token, host_list } = data
   const { host, wss_port } = await window.electron.selectFastest(host_list)
+  logger.info(`connecting ${host}:${wss_port}...`)
   return await createRoomChatSession(`wss://${host}:${wss_port}/sub`, roomId, token)
 }
 

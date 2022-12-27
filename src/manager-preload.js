@@ -6,5 +6,8 @@ contextBridge.exposeInMainWorld('electron', {
   },
   updateConfig() {
     ipcRenderer.send('config-updated')
+  },
+  writeLog(level, msg) {
+    ipcRenderer.send('write-log', level, msg)
   }
 })
